@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aurelia Jewels | Premium Jewelry Collection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        :root {
+            --gold: #c5a059;
+            --dark: #1a1a1a;
+            --light-pink: #f8d7d0;
+            --peach: #e69678;
+            --maroon: #5d0c1d;
+            --soft-cream: #fff9f5;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: var(--dark);
+            overflow-x: hidden;
+            background: var(--soft-cream);
+        }
+        /* --- SIGN-IN MODAL --- */
+        #signin-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.55);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #signin-box {
+            background: #fff;
+            width: 340px;
+            padding: 35px 30px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        #signin-box h2 {
+            font-family: 'Playfair Display', serif;
+            color: var(--gold);
+            margin: 0 0 5px;
+        }
+        #signin-box p { font-size: 13px; color: #888; margin: 0 0 20px; }
+        #signin-box input {
+            width: 100%;
+            padding: 10px 12px;
+            margin-bottom: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        #signin-box button {
+            width: 100%;
+            padding: 11px;
+            background: var(--maroon);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            letter-spacing: 1px;
+        }
+        #signin-box .skip-link {
+            display: block;
+            margin-top: 12px;
+            font-size: 12px;
+            color: #aaa;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        /* --- HEADER & NAVIGATION --- */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 5%;
+            border-bottom: 1px solid #eee;
+            background: rgba(255,255,255,0.96);
+            backdrop-filter: blur(4px);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo { font-family: 'Playfair Display', serif; font-size: 32px; color: var(--gold); text-decoration: none; font-weight: bold; cursor: pointer; }
+        nav ul { list-style: none; display: flex; gap: 28px; margin: 0; padding: 0; }
+        nav ul li a { text-decoration: none; color: var(--dark); text-transform: uppercase; font-size: 13px; font-weight: 600; letter-spacing: 1px; cursor: pointer; transition: 0.3s; position: relative; }
+        nav ul li a:hover, nav ul li a.active-nav { color: var(--gold); }
+        nav ul li a.active-nav::after { content: ''; position: absolute; bottom: -6px; left: 0; width: 100%; height: 2px; background: var(--gold); }
+        .nav-icons { display: flex; gap: 20px; font-size: 20px; cursor: pointer; position: relative; }
+        .cart-badge { background: var(--maroon); color: white; font-size: 10px; font-weight: bold; border-radius: 50%; padding: 2px 6px; position: absolute; top: -8px; right: -12px; }
+        /* --- CART SIDEBAR --- */
+        #cart-sidebar {
+            position: fixed;
+            right: -400px;
+            top: 0;
+            width: 360px;
+            height: 100%;
+            background: white;
+            box-shadow: -5px 0 20px rgba(0,0,0,0.15);
+            transition: 0.35s ease;
+            z-index: 2001;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+        }
+        #cart-sidebar.open { right: 0; }
+        .cart-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 15px; }
+        #cart-items { flex-grow: 1; overflow-y: auto; padding: 10px 0; }
+        .cart-item { display: flex; gap: 12px; margin-bottom: 16px; align-items: center; background: #fefaf5; padding: 10px; border-radius: 12px; }
+        .cart-item img { width: 65px; height: 65px; object-fit: cover; border-radius: 8px; }
+        .cart-item-details { flex: 1; }
+        .cart-item-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+        .cart-item-price { font-size: 13px; color: var(--peach); font-weight: 500; }
+        .remove-item { color: var(--maroon); cursor: pointer; font-weight: bold; font-size: 18px; transition: 0.2s; }
+        .cart-total { border-top: 1px solid #eee; padding-top: 18px; margin-top: 12px; }
+        .checkout-btn { background: var(--maroon); color: white; border: none; width: 100%; padding: 12px; border-radius: 40px; font-weight: bold; cursor: pointer; margin-top: 15px; transition: 0.2s; }
+        .checkout-btn:hover { background: #7e142b; }
+        /* --- PAGE DISPLAY --- */
+        .main-view { display: block; }
+        .shop-view { display: none; padding: 40px 5%; min-height: 60vh; }
+        .dynamic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 30px; }
+        /* --- ORIGINAL STYLES (enhanced) --- */
+        .top-bar { background-color: var(--light-pink); text-align: center; padding: 10px; font-size: 14px; letter-spacing: 1px; font-weight: 500; }
+        .category-container {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            padding: 45px 5% 30px;
+            flex-wrap: wrap;
+        }
+        .category-item { text-align: center; width: 130px; cursor: pointer; transition: transform 0.2s; }
+        .category-item:hover { transform: translateY(-5px); }
+        .category-item img { width: 120px; height: 120px; object-fit: cover; border-radius: 50%; box-shadow: 0 8px 18px rgba(0,0,0,0.1); border: 3px solid white; transition: 0.2s; }
+        .category-item:hover img { border-color: var(--gold); }
+        .hero-banner {
+            width: 100%;
+            height: 420px;
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80&w=2070&auto=format');
+            background-size: cover;
+            background-position: center 30%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+        }
+        .hero-text h1 { font-family: 'Playfair Display', serif; font-size: 54px; margin-bottom: 10px; text-shadow: 2px 2px 10px rgba(0,0,0,0.5); }
+        .trust-badges { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 30px; padding: 45px 5%; background: white; }
+        .badge-item { display: flex; align-items: center; gap: 15px; }
+        .badge-icon { width: 70px; height: 70px; border: 2px solid var(--light-pink); border-radius: 50% 20% 50% 20%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--gold); font-size: 12px; text-align: center; padding: 5px; }
+        .section-title { text-align: center; margin: 55px 0 35px; position: relative; }
+        .section-title h2 { font-family: 'Playfair Display', serif; display: inline-block; background: var(--soft-cream); padding: 0 25px; text-transform: uppercase; letter-spacing: 3px; font-size: 32px; }
+        .section-title::before { content: ""; position: absolute; top: 50%; left: 10%; right: 10%; height: 1px; background: #e2d4c8; z-index: -1; }
+        .launch-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; padding: 0 5% 50px; }
+        .launch-card { position: relative; height: 380px; overflow: hidden; border-radius: 20px; cursor: pointer; box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        .launch-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s; }
+        .launch-card:hover img { transform: scale(1.05); }
+        .overlay { position: absolute; bottom: 25px; left: 20px; color: white; text-shadow: 1px 1px 10px black; background: rgba(0,0,0,0.4); padding: 8px 16px; border-radius: 30px; backdrop-filter: blur(3px); }
+        .style-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; padding: 0 5% 60px; }
+        .style-card { background: var(--maroon); text-align: center; overflow: hidden; border-radius: 24px; transition: 0.3s; cursor: pointer; }
+        .style-card:hover { transform: translateY(-6px); box-shadow: 0 12px 24px rgba(93,12,29,0.2); }
+        .image-container { height: 280px; overflow: hidden; }
+        .style-card img { width: 100%; height: 100%; object-fit: cover; transition: 0.3s; }
+        .style-info { padding: 20px; color: white; }
+        .explore-btn { background: white; color: var(--maroon); padding: 6px 18px; border-radius: 30px; font-size: 12px; font-weight: bold; display: inline-block; cursor: pointer; transition: 0.2s; }
+        .product-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 25px; padding: 0 5% 60px; }
+        .product-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.25s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+        }
+        .product-card:hover { transform: translateY(-6px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+        .product-image-wrapper { width: 100%; height: 240px; overflow: hidden; background: #faf3eb; }
+        .product-image-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: 0.3s; }
+        .product-card:hover .product-image-wrapper img { transform: scale(1.03); }
+        .product-name { font-weight: 600; font-size: 14px; margin: 12px 12px 5px; color: #2c2c2c; }
+        .price-box { margin: 0 12px 12px; }
+        .new-price { font-weight: bold; font-size: 16px; color: var(--maroon); }
+        .btn-add {
+            background: var(--peach);
+            color: white;
+            border: none;
+            padding: 10px;
+            margin: 0 12px 16px;
+            border-radius: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-add:hover { background: #d47d5c; transform: scale(0.98); }
+        /* Reviews & feedback */
+        .reviews-container { display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; padding: 40px 5%; background: #fff9f5; }
+        .review-card { background: white; border-radius: 24px; padding: 40px 24px 24px; width: 280px; text-align: center; position: relative; box-shadow: 0 8px 20px rgba(0,0,0,0.05); }
+        .customer-img { width: 70px; height: 70px; object-fit: cover; position: absolute; top: -35px; left: 50%; transform: translateX(-50%); border-radius: 50%; border: 4px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        #feedback-reviews-section { background: #fef6f0; padding: 20px 5% 60px; border-radius: 40px; margin: 20px 5%; }
+        .fb-review-card { background: white; border-radius: 18px; padding: 18px; width: 260px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .floral-badges { display: flex; justify-content: space-around; flex-wrap: wrap; gap: 20px; padding: 50px 5%; background: white; }
+        .floral-border { width: 140px; height: 140px; border: 2px solid var(--peach); border-radius: 50% 15% 50% 15%; display: flex; align-items: center; justify-content: center; flex-direction: column; font-weight: bold; }
+        footer { background: #d99a84; color: #1a1a1a; padding: 40px 5% 30px; margin-top: 40px; }
+        .footer-columns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+        #feedback-btn {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            background: var(--maroon);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1500;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        #feedback-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 2500;
+            align-items: center;
+            justify-content: center;
+        }
+        #feedback-modal.open { display: flex; }
+        #feedback-box { background: white; width: 380px; padding: 30px; border-radius: 24px; }
+        .close-fb { float: right; font-size: 22px; cursor: pointer; }
+        @media (max-width: 900px) {
+            .product-grid, .style-grid { grid-template-columns: repeat(2, 1fr); }
+            .launch-grid { grid-template-columns: 1fr; }
+            nav ul { gap: 16px; }
+        }
+        @media (max-width: 600px) {
+            .product-grid, .style-grid { grid-template-columns: 1fr; }
+        }
+
+        .back-home-btn {
+    background: var(--maroon);
+    color: white;
+    border: none;
+    padding: 12px 22px;
+    border-radius: 40px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 30px;
+    transition: 0.3s;
+    display: inline-block;
+}
+
+.back-home-btn:hover {
+    background: #7e142b;
+    transform: translateY(-2px);
+}
+    </style>
+</head>
+<body>
+
+<!-- SIGN-IN MODAL -->
+<div id="signin-overlay">
+    <div id="signin-box">
+        <h2>aurelia</h2>
+        <p>Sign in to explore exclusive collections</p>
+        <input type="text" id="signin-name" placeholder="Your Name">
+        <input type="email" id="signin-email" placeholder="Email Address">
+        <input type="password" id="signin-password" placeholder="Password">
+        <button onclick="handleSignIn()">Sign In</button>
+        <span class="skip-link" onclick="skipSignIn()">Skip for now →</span>
+    </div>
+</div>
+
+<!-- FEEDBACK MODAL -->
+<button id="feedback-btn" onclick="openFeedback()">💬 Give Feedback</button>
+<div id="feedback-modal">
+    <div id="feedback-box">
+        <span class="close-fb" onclick="closeFeedback()">✕</span>
+        <h3 style="color:var(--maroon);">Share Your Feedback</h3>
+        <input type="text" id="fb-name" placeholder="Your Name">
+        <select id="fb-rating">
+            <option value="">Rate ★</option>
+            <option value="5">★★★★★</option><option value="4">★★★★☆</option>
+            <option value="3">★★★☆☆</option><option value="2">★★☆☆☆</option>
+        </select>
+        <textarea id="fb-message" rows="3" placeholder="Write your thoughts..."></textarea>
+        <button class="submit-fb" onclick="submitFeedback()" style="background:var(--peach); width:100%; padding:10px; border:none; border-radius:40px; font-weight:bold;">Submit</button>
+    </div>
+</div>
+
+<!-- CART SIDEBAR -->
+<div id="cart-sidebar">
+    <div class="cart-header"><h3>Your Shopping Bag</h3><span onclick="toggleCart()" style="cursor:pointer; font-size:24px;">✕</span></div>
+    <div id="cart-items"><p style="text-align:center; color:#aaa;">Your cart is empty</p></div>
+    <div class="cart-total"><h4>Total: <span id="cart-total-amount">₹0</span></h4>
+    <button class="checkout-btn" onclick="alert('Checkout coming soon ✨')">Checkout Now</button></div>
+</div>
+
+<div class="top-bar">✨ Introducing <strong>Aurelia Lab-Grown Diamonds</strong> set in pure 925 sterling silver. ✨</div>
+
+<header>
+    <div class="logo" onclick="goHome()">aurelia</div>
+    <nav><ul>
+        <li><a id="nav-home" onclick="goHome()">Home</a></li>
+        <li><a id="nav-new" onclick="showShop('New Arrivals')">New Arrivals</a></li>
+        <li><a id="nav-collections" onclick="showShop('Collections')">Collections</a></li>
+        <li><a id="nav-wedding" onclick="showShop('Wedding')">Wedding</a></li>
+    </ul></nav>
+    <div class="nav-icons"><span onclick="toggleCart()">🛒<span id="cart-count" class="cart-badge">0</span></span></div>
+</header>
+
+<section id="shop-view" class="shop-view">
+    <div class="section-title"><h2 id="shop-title">Collection</h2></div>
+        <button class="back-home-btn" onclick="goHome()">← Back to Homepage</button>
+    <div class="dynamic-grid" id="shop-items-container"></div>
+</section>
+
+<div id="main-scrolling-content" class="main-view">
+    <section class="category-container">
+        <div class="category-item" onclick="showShop('Sets')"><img src="https://i.etsystatic.com/14859358/r/il/4d8424/4629526964/il_1080xN.4629526964_65oa.jpg" alt="Sets"><p>Sets</p></div>
+        <div class="category-item" onclick="showShop('Earrings')"><img src="https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=400" alt="Earrings"><p>Earrings</p></div>
+        <div class="category-item" onclick="showShop('Rings')"><img src="https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400" alt="Rings"><p>Rings</p></div>
+        <div class="category-item" onclick="showShop('Bangles')"><img src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=400" alt="Bangles"><p>Bangles</p></div>
+        <div class="category-item" onclick="showShop('Necklace')"><img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=400" alt="Necklace"><p>Necklace</p></div>
+    </section>
+
+    <section class="hero-banner"><div class="hero-text"><h1>AURELIA PRECIOUS</h1><p>SILVER • LAB GROWN DIAMONDS</p></div></section>
+
+    <section class="trust-badges">
+        <div class="badge-item"><div class="badge-icon">10<br>DAYS</div><div class="badge-text">Easy Returns</div></div>
+        <div class="badge-item"><div class="badge-icon">✨</div><div class="badge-text">Light Weight</div></div>
+        <div class="badge-item"><div class="badge-icon">🌿</div><div class="badge-text">Skin Friendly</div></div>
+        <div class="badge-item"><div class="badge-icon">💎</div><div class="badge-text">Unique Designs</div></div>
+    </section>
+
+    <div class="section-title"><h2>New Launch</h2></div>
+    <section class="launch-grid">
+        <div class="launch-card" onclick="showShop('Wedding')"><img src="https://tse3.mm.bing.net/th/id/OIP.sdU9alm7RX3Y2ulJ2ipJCAHaHa?r=0&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Royal"><div class="overlay"><h3>Royal Heritage</h3></div></div>
+        <div class="launch-card" onclick="showShop('New Arrivals')"><img src="https://fashioneditindia.com/allUsers/customer/images/women_img/Women-Accessories-1.JPG" alt="Flow"><div class="overlay"><h3>Flow Tide</h3></div></div>
+        <div class="launch-card" onclick="showShop('Sets')"><img src="https://i.pinimg.com/736x/51/04/c6/5104c65ea51d3015d33e4e656f8209b0.jpg" alt="Shahi"><div class="overlay"><h3>Shahi Dwar</h3></div></div>
+    </section>
+
+    <div class="section-title"><h2>Shop By Style</h2></div>
+    <section class="style-grid">
+        <div class="style-card" onclick="showShop('Necklace')"><div class="image-container"><img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=500"></div><div class="style-info"><h3>Modern Fusion</h3><span class="explore-btn">Explore</span></div></div>
+        <div class="style-card" onclick="showShop('Earrings')"><div class="image-container"><img src="https://th.bing.com/th/id/OIP.tdgq2eTQELExWkTwJ4TmjQHaE8?r=0&o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3"></div><div class="style-info"><h3>Ultra Glam</h3><span class="explore-btn">Explore</span></div></div>
+        <div class="style-card" onclick="showShop('Wedding')"><div class="image-container"><img src="https://images.unsplash.com/photo-1635767798638-3e25273a8236?w=500"></div><div class="style-info"><h3>Classic Traditional</h3><span class="explore-btn">Explore</span></div></div>
+        <div class="style-card" onclick="showShop('Bangles')"><div class="image-container"><img src="https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=500"></div><div class="style-info"><h3>Contemporary</h3><span class="explore-btn">Explore</span></div></div>
+    </section>
+
+    <div class="section-title"><h2 style="color: var(--peach);">Best Sellers</h2></div>
+    <section class="product-grid" id="bestseller-container"></section>
+
+    <div class="section-title"><h2>Customer Reviews</h2></div>
+    <section class="reviews-container">
+        <div class="review-card"><img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150" class="customer-img"><h4>Loved it!</h4><p>Perfect for festive wear.</p><div style="color:#ffb400">★★★★★</div><div>- Oindrila</div></div>
+        <div class="review-card"><img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150" class="customer-img"><h4>Stunning!</h4><p>Exactly as shown.</p><div style="color:#ffb400">★★★★★</div><div>- Seshadri</div></div>
+    </section>
+
+    <div id="feedback-reviews-section"><div class="section-title"><h2>Your Feedback</h2></div><div id="feedback-reviews-list"><p class="no-reviews">No feedback yet. Be the first! 💬</p></div></div>
+
+    <section class="floral-badges">
+        <div class="floral-border">🏰 DESIGNED IN JAIPUR</div>
+        <div class="floral-border">✍️ HANDCRAFTED</div>
+        <div class="floral-border">✨ SKIN SAFE</div>
+        <div class="floral-border">💎 EXCLUSIVE</div>
+    </section>
+</div>
+
+<footer><div class="footer-columns"><div><h4>Associate With Us</h4><p>Careers | Contact</p></div><div><h4>Policy Matters</h4><p>Privacy | Returns | Exchange</p></div><div><p>📞 +91 72400 12345</p><p>✉️ help@aurelia.com</p><p>Jaipur, Rajasthan</p></div></div></footer>
+
+<script>
+    // -------------------- EXPANDED PRODUCTS (50+ unique, all categories) --------------------
+    const products = [
+        { id: 1, name: "Royal Mangalsutra Set", price: 1999, img: "https://photos.vardanethnic.in/media/2023/11/LM3.webp", category: "Sets" },
+        { id: 2, name: "Golden Glow Pendant", price: 869, img: "https://www.tanishq.co.in/on/demandware.static/-/Sites-Tanishq-product-catalog/default/dw1f2733fa/images/hi-res/50D2P2PZAAAA32_1.jpg", category: "Necklace" },
+        { id: 3, name: "Enamel Floral Bangle", price: 999, img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrfB_Q66yYRruYOE_00mVP1unRivI3NMWgFg&s", category: "Bangles" },
+        { id: 4, name: "Lotus Plume Necklace", price: 989, img: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=500", category: "Necklace" },
+        { id: 5, name: "Royal Heritage Choker", price: 4500, img: "https://th.bing.com/th/id/OIP.qGrOyDUmV_crHM2TnkW5WQHaHa?r=0&o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3", category: "Wedding" },
+        { id: 6, name: "Heritage Bridal Set", price: 3200, img: "https://th.bing.com/th/id/OIP.UqMRVPv4pf5mzOuehkre-wHaJw?r=0&o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3", category: "Wedding" },
+        { id: 7, name: "Classic Silver Ring", price: 1200, img: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=500", category: "Rings" },
+        { id: 8, name: "Bridal Polki Necklace", price: 5900, img: "https://i.pinimg.com/originals/b2/8c/ca/b28cca39894ad160a3c2611558d06db5.jpg", category: "Wedding" },
+        { id: 9, name: "Antique Gold Set", price: 4900, img: "https://www.rnarayanjewellers.com/cdn/shop/products/Parineeta-jadau-stone-22kt-antique-gold-bridal-necklace-set-R-Narayan-Jewellers.jpg?v=1671503462&width=2048", category: "Wedding" },
+        { id: 11, name: "Upexa Antique Bangle", price: 2500, img: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=500", category: "Bangles" },
+        { id: 12, name: "Peacock Earrings", price: 1890, img: "https://5.imimg.com/data5/ANDROID/Default/2022/8/DN/LT/LU/14970841/product-jpeg-1000x1000.jpg", category: "Earrings" },
+        { id: 13, name: "Crystal Drop Earrings", price: 1490, img: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=500", category: "Earrings" },
+        { id: 14, name: "Rose Gold Stack Ring", price: 3490, img: "https://tse3.mm.bing.net/th/id/OIP.k1UwCu_vZpNGkU1VOJUDMQHaEK?r=0&rs=1&pid=ImgDetMain&o=7&rm=3", category: "Rings" },
+        { id: 15, name: "Emerald Cut Ring", price: 5990, img: "https://i.etsystatic.com/13348279/r/il/7bc5bc/4449895867/il_fullxfull.4449895867_7ykz.jpg", category: "Rings" },
+        { id: 16, name: "Temple Jewellery Set", price: 8990, img: "https://www.southjewellery.com/wp-content/uploads/2022/10/temple-jewelelry-set-vega-sri-scaled.jpg", category: "Wedding" },
+        { id: 17, name: "Modern Cuff Bangle", price: 1990, img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS8bQ7B1F4-8t7plNY4b_qpPulN0bIH574FkA&s", category: "Bangles" },
+        { id: 18, name: "Pearl Choker", price: 2790, img: "https://stylesatlife.com/wp-content/uploads/2018/04/18-Beautiful-Pearl-Choker-Necklace-Designs.jpg", category: "Necklace" },
+        { id: 19, name: "Sunset Pendant Set", price: 3990, img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQt05vgdv86fQIfaHYeMbDDJK1ux7yGhbeHQ&s", category: "Sets" },
+        { id: 20, name: "New Arrival Maang Tikka", price: 1590, img: "https://prade.in/file/wp-content/uploads/2025/03/Maang-Tikka-Style-35_1-852x1276.jpg", category: "New Arrivals" },
+        { id: 21, name: "Minimalist Hoops", price: 990, img: "https://i.pinimg.com/originals/77/39/ea/7739ea47cfa0a5a29abd9b0c8ef81578.jpg", category: "New Arrivals" },
+        { id: 22, name: "Modern Fusion Necklace", price: 2790, img: "https://images.unsplash.com/photo-1635767798638-3e25273a8236?w=500", category: "Collections" },
+        { id: 23, name: "Gold Plated Ring Set", price: 1290, img: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=500", category: "Rings" },
+        { id: 24, name: "Festival Special Earrings", price: 2090, img: "https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=500", category: "New Arrivals" },
+        { id: 25, name: "Layered Gold Necklace", price: 3490, img: "https://www.dgjewelry.com/wp-content/uploads/2024/08/Layered-gold-and-pearl-necklaces-with-a-pendant-on-a-womans-neck.webp", category: "Collections" },
+        { id: 26, name: "Chunky Round Earings", price: 899, img: "https://zivom.com/cdn/shop/files/E4046WWFDAISH-DI-I-3_fa359031-166d-4e27-a29e-bd1102dba053.jpg?v=1729140132", category: "Earrings" },
+        { id: 27, name: "Gold hoop Earings", price: 999, img: "https://i0.wp.com/www.ivarajewels.in/wp-content/uploads/2024/10/IMG_4196-scaled.jpeg?fit=600%2C600&ssl=1", category: "Earrings" },
+        { id: 28, name: "Anti tarnish gold stud", price: 799, img: "https://www.gehnaindia.com/_next/image?url=https%3A%2F%2Fcdn-assets.gehnaindia.com%2Fwrmrlrj2bp7fyceqmbiwn3ad9o2x&w=2560&q=75", category: "Earrings" },
+        { id: 29, name: "Luxury Earings", price: 999, img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSFo7uoNsNO6wAStYjeQ0qBtcUss5Jxv25BVQ&s", category: "Earrings" },
+        { id: 30, name: "Rose Gold Ring", price: 1490, img: "https://www.jacksonholejewelry.com/cdn/shop/files/preview_images/9b3b2087a44c48c999b1c1bdc5dce743.thumbnail.0000000000.jpg?v=1741117048&width=1080", category: "Rings" },
+        { id: 31, name: "Sparkle Ring", price: 2490, img: "https://www.nabilondon.com/cdn/shop/files/KH2A7677.jpg?v=1742407386&width=1200", category: "Rings" },
+        { id: 32, name: "Stack Ring", price: 1990, img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZwcFgvHxFoYSlHSjvfP-w62XqoA1HCAd5Hg&s", category: "Rings" },
+        { id: 33, name: "Blue Stone Preset Ring", price: 1980, img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRbrMu21Wbau5vXPLyFnDsr1Twicv3IA_ytKA&s", category: "Rings" },
+        { id: 34, name: "Sleek Bangle", price: 2990, img: "https://smarsjewelry.com/cdn/shop/files/1389.1.jpg?v=1724673854", category: "Bangles" },
+        { id: 35, name: "Quality gold Bangle", price: 5990, img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIDK-dzUPpiwO308nniVNaW3Re4etJlu74_A&s", category: "Bangles" },
+        { id: 36, name: "Dazzling CZ Bangle", price: 3990, img: "https://www.tarinika.in/cdn/shop/products/IMGL5898.jpg?v=1643716248&width=1780", category: "Bangles" },
+        { id: 37, name: "Alpha Floral Necklace", price: 2790, img: "https://d25g9z9s77rn4i.cloudfront.net/uploads/product/1158/1670782806_79f7f6b035c3105a8786.png", category: "Necklace" },
+        { id: 38, name: "Gold necklace", price: 3790, img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQTmHovMf_sWcHAmQHg2JiYD-M1-CCKKuhTmQ&s", category: "Necklace" },
+        { id: 39, name: "Women necklace", price: 2590, img: "https://www.grtjewels.com/_next/image/?url=https%3A%2F%2Fmedia.grtjewels.com%2Fcatalog%2Fproduct%2Fcache%2F6f19fecd2cb6599abb4caf39e5972e35%2F1%2F3%2F135aa999250_prop.jpg&w=1080&q=75", category: "Necklace" },
+        { id: 40, name: "Royal Heritage Set", price: 5500, img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdkgGXCDPPnalZo37wY2PD-bbndeKub_A5Dg&s", category: "Wedding" },
+        { id: 41, name: "India Jewellery Set", price: 3500, img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTdkgGXCDPPnalZo37wY2PD-bbndeKub_A5Dg&s", category: "Wedding" },
+        { id: 42, name: "Indian Heritage Set", price: 4500, img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6N2Ia9A-PsnO1NrC5-9fVkXT6OHybj1dIlQ&s", category: "Wedding" },
+        { id: 43, name: "Latest Rhodium Set", price: 3990, img: "https://www.sasitrends.com/cdn/shop/files/2111k-Latest-AD-Rose-Gold-Plated-Necklace-Earrings-Sasitrends_9655cb74-ad84-48df-91b6-d441608a7cce.jpg?v=1752136102&width=1080", category: "Sets" },
+        { id: 44, name: "PartyWear Pendant Set", price: 2990, img: "https://www.sasitrends.com/cdn/shop/files/2111F-Amazing-Latest-Party-Wear-Micro-Gold-Plated-Floral-Necklace-Earrings-Sasitrends.jpg?v=1750837056&width=1080", category: "Sets" },
+        { id: 45, name: "Elegant Pendant Set", price: 3999, img: "https://www.soosi.co.in/cdn/shop/products/WhatsAppImage2022-06-30at10.32.43AM_1_580x.jpg?v=1656572111", category: "Sets" },
+        { id: 46, name: "Heritage Set", price: 3999, img: "https://kundanstore.in/cdn/shop/files/B5F35E35-716F-4DBE-ADDD-398BC5B82411.jpg?v=1762251873&width=533", category: "Sets" },
+    ];
+
+    let cart = [];
+    let feedbackList = [];
+
+    // Load stored feedback
+    const storedFeed = localStorage.getItem("aurelia_feedback");
+    if (storedFeed) { try { feedbackList = JSON.parse(storedFeed); renderFeedbackReviews(); } catch(e) {} }
+
+    function saveFeedback() { localStorage.setItem("aurelia_feedback", JSON.stringify(feedbackList)); }
+
+    // Sign In
+    function handleSignIn() { const name = document.getElementById('signin-name').value.trim(); if(!name) alert('Please enter name'); else document.getElementById('signin-overlay').style.display = 'none'; }
+    function skipSignIn() { document.getElementById('signin-overlay').style.display = 'none'; }
+
+    // Feedback
+    function openFeedback() { document.getElementById('feedback-modal').classList.add('open'); }
+    function closeFeedback() { document.getElementById('feedback-modal').classList.remove('open'); }
+    function submitFeedback() {
+        let name = document.getElementById('fb-name').value.trim();
+        let rating = document.getElementById('fb-rating').value;
+        let msg = document.getElementById('fb-message').value.trim();
+        if (!name || !rating || !msg) { alert('Please fill all fields'); return; }
+        feedbackList.push({ name, rating: parseInt(rating), message: msg });
+        renderFeedbackReviews();
+        saveFeedback();
+        document.getElementById('fb-name').value = '';
+        document.getElementById('fb-rating').value = '';
+        document.getElementById('fb-message').value = '';
+        closeFeedback();
+        alert('Thank you for your feedback! 🌸');
+    }
+    function renderFeedbackReviews() {
+        const listDiv = document.getElementById('feedback-reviews-list');
+        if (!listDiv) return;
+        if (feedbackList.length === 0) { listDiv.innerHTML = '<p class="no-reviews">No feedback yet. Be the first to share! 💬</p>'; return; }
+        listDiv.innerHTML = feedbackList.map(fb => {
+            const stars = '★'.repeat(fb.rating) + '☆'.repeat(5-fb.rating);
+            return `<div class="fb-review-card"><div class="fb-name">${fb.name}</div><div class="fb-stars">${stars}</div><div class="fb-text">${fb.message}</div></div>`;
+        }).join('');
+    }
+
+    // Navigation & Shop
+    function goHome() {
+        document.getElementById('main-scrolling-content').style.display = 'block';
+        document.getElementById('shop-view').style.display = 'none';
+        window.scrollTo(0,0);
+        setActiveNav('home');
+    }
+    function setActiveNav(active) {
+        const navLinks = { home:'nav-home', 'New Arrivals':'nav-new', Collections:'nav-collections', Wedding:'nav-wedding' };
+        Object.values(navLinks).forEach(id => { const el = document.getElementById(id); if(el) el.classList.remove('active-nav'); });
+        if (active === 'home') document.getElementById('nav-home')?.classList.add('active-nav');
+        else {
+            const linkId = navLinks[active];
+            if(linkId) document.getElementById(linkId)?.classList.add('active-nav');
+        }
+    }
+    function showShop(categoryName) {
+        document.getElementById('main-scrolling-content').style.display = 'none';
+        document.getElementById('shop-view').style.display = 'block';
+        document.getElementById('shop-title').innerText = categoryName;
+        let filtered = [];
+        if (categoryName === 'Collections') filtered = products.filter(p => p.category === 'Collections' || p.category === 'Necklace');
+        else filtered = products.filter(p => p.category === categoryName);
+        if (filtered.length === 0) filtered = products.slice(0, 8);
+        const container = document.getElementById('shop-items-container');
+        container.innerHTML = filtered.map(p => createProductCard(p)).join('');
+        setActiveNav(categoryName);
+        window.scrollTo(0,0);
+    }
+    function createProductCard(p) {
+        return `<div class="product-card">
+            <div class="product-image-wrapper"><img src="${p.img}" alt="${p.name}" loading="lazy"></div>
+            <div class="product-name">${p.name}</div>
+            <div class="price-box"><span class="new-price">₹${p.price}</span></div>
+            <button class="btn-add" onclick="addToCart(${p.id})">Add to Cart</button>
+        </div>`;
+    }
+
+    // CART FUNCTIONS - FIXED (removal by unique id, proper update)
+    function toggleCart() { document.getElementById('cart-sidebar').classList.toggle('open'); }
+    function addToCart(id) {
+        const product = products.find(p => p.id === id);
+        if (product) {
+            cart.push({ ...product, cartId: Date.now() + Math.random() }); // unique id for removal
+            updateCartDisplay();
+            if (!document.getElementById('cart-sidebar').classList.contains('open')) toggleCart();
+        }
+    }
+    function removeCartItem(cartUniqueId) {
+        cartUniqueId = Number(cartUniqueId);
+        const index = cart.findIndex(item => item.cartId === cartUniqueId);
+        if (index !== -1) { cart.splice(index, 1); updateCartDisplay(); }
+    }
+    function updateCartDisplay() {
+        const container = document.getElementById('cart-items');
+        const badge = document.getElementById('cart-count');
+        const totalSpan = document.getElementById('cart-total-amount');
+        badge.innerText = cart.length;
+        if (cart.length === 0) { container.innerHTML = "<p style='text-align:center; color:#aaa;'>Your cart is empty</p>"; totalSpan.innerText = "₹0"; return; }
+        let total = 0;
+        container.innerHTML = cart.map(item => {
+            total += item.price;
+            return `<div class="cart-item">
+                        <img src="${item.img}" alt="${item.name}">
+                        <div class="cart-item-details">
+                            <div class="cart-item-title">${item.name}</div>
+                            <div class="cart-item-price">₹${item.price}</div>
+                        </div>
+                        <span class="remove-item" onclick="removeCartItem('${item.cartId}')">✕</span>
+                    </div>`;
+        }).join('');
+        totalSpan.innerText = "₹" + total;
+    }
+
+    // Load Best Sellers on Home page
+    function loadBestSellers() {
+        const bestIds = [1,5,7,12,14,20];
+        const bestItems = products.filter(p => bestIds.includes(p.id));
+        const bsContainer = document.getElementById('bestseller-container');
+        if(bsContainer) bsContainer.innerHTML = bestItems.map(p => createProductCard(p)).join('');
+    }
+    window.onload = () => {
+        loadBestSellers();
+        renderFeedbackReviews();
+        updateCartDisplay();
+    };
+    window.addToCart = addToCart;
+    window.removeCartItem = removeCartItem;
+    window.toggleCart = toggleCart;
+    window.showShop = showShop;
+    window.goHome = goHome;
+    window.handleSignIn = handleSignIn;
+    window.skipSignIn = skipSignIn;
+    window.openFeedback = openFeedback;
+    window.closeFeedback = closeFeedback;
+    window.submitFeedback = submitFeedback;
+</script>
+</body>
+</html>
